@@ -30,6 +30,14 @@ functions/          - Cloudflare Functions
 ```
 
 ## Recent Changes
+- **2025-10-30**: Updated website to pure black and white color scheme
+  - **Light Mode**: White backgrounds with pure black (#000000) text and black accents
+  - **Dark Mode**: Black backgrounds with pure white (#FFFFFF) text and white accents
+  - Replaced all color accents (blues, reds, greens) with grayscale equivalents
+  - Maintained theme toggle functionality (sun/moon icon in sidebar)
+  - Improved contrast and readability across all UI elements
+  - Updated `app/styles/variables.scss` with monochrome color palette
+
 - **2025-10-29**: Updated all AI models to latest versions (October 2025)
   - **Anthropic**: Added Claude Sonnet 4.5, Haiku 4.5, Opus 4.1, Sonnet 4
   - **OpenAI**: Added GPT-5 (o1), GPT-5 Pro, GPT-5 Mini, GPT-4.1 (gpt-4o)
