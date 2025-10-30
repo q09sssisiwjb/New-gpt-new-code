@@ -30,6 +30,27 @@ functions/          - Cloudflare Functions
 ```
 
 ## Recent Changes
+- **2025-10-30**: Implemented Chat Mode and Build Mode feature
+  - **Build Mode** (Default): AI creates and updates code with full artifact execution
+  - **Chat Mode**: Conversational mode for asking questions about your project without making code changes
+  - **Mode Selector**: Dropdown in prompt box footer to switch between modes
+  - **Features**:
+    - Mode persists across sessions (localStorage + cookies)
+    - Different system prompts for each mode
+    - In Chat Mode: AI provides explanations, advice, and strategies without executing actions
+    - In Build Mode: AI generates code, creates files, and executes shell commands
+    - Works in both development (HTTP) and production (HTTPS) environments
+  - **Files Modified/Created**:
+    - `app/lib/stores/mode.ts`: New mode store for state management
+    - `app/lib/.server/llm/prompts.ts`: Added chat mode system prompt
+    - `app/lib/.server/llm/stream-text.ts`: Added mode parameter support
+    - `app/routes/api.chat.ts`: Reads mode from cookie to select appropriate prompt
+    - `app/components/chat/BaseChat.tsx`: Added mode selector dropdown UI
+
+- **2025-10-30**: Set dark mode as default theme
+  - Updated `DEFAULT_THEME` from 'light' to 'dark'
+  - Application now loads with dark theme by default
+
 - **2025-10-30**: Completed comprehensive black and white color scheme conversion
   - **Light Mode**: White backgrounds (#FFFFFF) with pure black (#000000) text and black accents
   - **Dark Mode**: Black backgrounds (#000000) with pure white (#FFFFFF) text and white accents
