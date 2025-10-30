@@ -124,9 +124,11 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const handleModeChange = (newMode: Mode) => {
       setMode(newMode);
       // Save to cookie for server-side access
+      // Only use secure flag on HTTPS (production), default to true for safety
+      const isSecure = typeof window !== 'undefined' ? window.location.protocol === 'https:' : true;
       Cookies.set('bolt_mode', newMode, {
         expires: 30,
-        secure: true,
+        secure: isSecure,
         sameSite: 'strict',
         path: '/',
       });
