@@ -224,15 +224,15 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       gradientUnits="userSpaceOnUse"
                       gradientTransform="rotate(-45)"
                     >
-                      <stop offset="0%" stopColor="#1488fc" stopOpacity="0%"></stop>
-                      <stop offset="40%" stopColor="#1488fc" stopOpacity="80%"></stop>
-                      <stop offset="50%" stopColor="#1488fc" stopOpacity="80%"></stop>
-                      <stop offset="100%" stopColor="#1488fc" stopOpacity="0%"></stop>
+                      <stop offset="0%" stopColor="#888888" stopOpacity="0%"></stop>
+                      <stop offset="40%" stopColor="#888888" stopOpacity="30%"></stop>
+                      <stop offset="50%" stopColor="#888888" stopOpacity="30%"></stop>
+                      <stop offset="100%" stopColor="#888888" stopOpacity="0%"></stop>
                     </linearGradient>
                     <linearGradient id="shine-gradient">
                       <stop offset="0%" stopColor="white" stopOpacity="0%"></stop>
-                      <stop offset="40%" stopColor="#8adaff" stopOpacity="80%"></stop>
-                      <stop offset="50%" stopColor="#8adaff" stopOpacity="80%"></stop>
+                      <stop offset="40%" stopColor="#AAAAAA" stopOpacity="30%"></stop>
+                      <stop offset="50%" stopColor="#AAAAAA" stopOpacity="30%"></stop>
                       <stop offset="100%" stopColor="white" stopOpacity="0%"></stop>
                     </linearGradient>
                   </defs>
