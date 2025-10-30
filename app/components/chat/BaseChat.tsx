@@ -15,6 +15,8 @@ import { SendButton } from './SendButton.client';
 import { APIKeyManager } from './APIKeyManager';
 import Cookies from 'js-cookie';
 import * as Tooltip from '@radix-ui/react-tooltip';
+import { useStore } from '@nanostores/react';
+import { modeStore, setMode, type Mode } from '~/lib/stores/mode';
 
 import styles from './BaseChat.module.scss';
 import type { ProviderInfo } from '~/utils/types';
@@ -117,6 +119,18 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
     const [modelList, setModelList] = useState(MODEL_LIST);
     const [isModelSettingsCollapsed, setIsModelSettingsCollapsed] = useState(false);
+    const currentMode = useStore(modeStore);
+
+    const handleModeChange = (newMode: Mode) => {
+      setMode(newMode);
+      // Save to cookie for server-side access
+      Cookies.set('bolt_mode', newMode, {
+        expires: 30,
+        secure: true,
+        sameSite: 'strict',
+        path: '/',
+      });
+    };
 
     useEffect(() => {
       // Load API keys from cookies on component mount
@@ -351,13 +365,24 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       </IconButton>
                       {chatStarted && <ClientOnly>{() => <ExportChatButton exportChat={exportChat} />}</ClientOnly>}
                     </div>
-                    {input.length > 3 ? (
-                      <div className="text-xs text-bolt-elements-textTertiary">
-                        Use <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Shift</kbd> +{' '}
-                        <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Return</kbd> a
-                        new line
-                      </div>
-                    ) : null}
+                    <div className="flex items-center gap-3">
+                      <select
+                        value={currentMode}
+                        onChange={(e) => handleModeChange(e.target.value as Mode)}
+                        className="px-2 py-1 rounded-md border border-bolt-elements-borderColor bg-bolt-elements-prompt-background text-bolt-elements-textPrimary text-xs focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus transition-all"
+                        title={currentMode === 'build' ? 'Build Mode: AI creates and updates code' : 'Chat Mode: Ask questions about your project'}
+                      >
+                        <option value="build">⚡ Build Mode</option>
+                        <option value="chat">💬 Chat Mode</option>
+                      </select>
+                      {input.length > 3 ? (
+                        <div className="text-xs text-bolt-elements-textTertiary">
+                          Use <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Shift</kbd> +{' '}
+                          <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Return</kbd> for
+                          new line
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
               </div>
