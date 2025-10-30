@@ -40,7 +40,7 @@ function extractPropertiesFromMessage(message: Message): { model: string; provid
   return { model, provider, content: cleanedContent };
 }
 
-export function streamText(messages: Messages, env: Env, options?: StreamingOptions, apiKeys?: Record<string, string>) {
+export function streamText(messages: Messages, env: Env, options?: StreamingOptions, apiKeys?: Record<string, string>, mode?: 'build' | 'chat') {
   let currentModel = DEFAULT_MODEL;
   let currentProvider = DEFAULT_PROVIDER;
 
@@ -66,7 +66,7 @@ export function streamText(messages: Messages, env: Env, options?: StreamingOpti
 
   return _streamText({
     model: getModel(currentProvider, currentModel, env, apiKeys),
-    system: getSystemPrompt(),
+    system: getSystemPrompt(undefined, mode),
     maxTokens: dynamicMaxTokens,
     messages: convertToCoreMessages(processedMessages),
     ...options,

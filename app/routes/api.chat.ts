@@ -42,9 +42,13 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   }>();
 
   const cookieHeader = request.headers.get('Cookie');
+  const cookies = parseCookies(cookieHeader);
 
   // Parse the cookie's value (returns an object or null if no cookie exists)
-  const apiKeys = JSON.parse(parseCookies(cookieHeader).apiKeys || '{}');
+  const apiKeys = JSON.parse(cookies.apiKeys || '{}');
+  
+  // Get mode from cookies, default to 'build'
+  const mode = (cookies.bolt_mode as 'build' | 'chat') || 'build';
 
   const stream = new SwitchableStream();
 
@@ -68,13 +72,13 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         messages.push({ role: 'assistant', content });
         messages.push({ role: 'user', content: CONTINUE_PROMPT });
 
-        const result = await streamText(messages, context.cloudflare.env, options);
+        const result = await streamText(messages, context.cloudflare.env, options, apiKeys, mode);
 
         return stream.switchSource(result.toAIStream());
       },
     };
 
-    const result = await streamText(messages, context.cloudflare.env, options, apiKeys);
+    const result = await streamText(messages, context.cloudflare.env, options, apiKeys, mode);
 
     stream.switchSource(result.toAIStream());
 
