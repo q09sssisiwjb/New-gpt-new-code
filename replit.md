@@ -30,6 +30,19 @@ functions/          - Cloudflare Functions
 ```
 
 ## Recent Changes
+- **2025-10-31**: Added Tavily API Key Frontend UI
+  - **Users can now enter their Tavily API key directly in the UI** (stored securely in browser cookies)
+  - **Frontend API key management**: Added Tavily to the Model Settings section with:
+    - APIKeyManager component for easy key entry/editing
+    - "Get API Key" button linking to https://app.tavily.com/home
+    - Helpful description: "Enable AI web search for real-time information (1,000 free searches/month)"
+    - Magnifying glass icon for visual identification
+  - **Cookie-based storage**: Tavily API key stored alongside other provider keys in encrypted cookies
+  - **Priority fallback**: Cookie-stored key takes priority over environment variable
+  - **Files Modified**:
+    - `app/lib/.server/llm/stream-text.ts`: Accept Tavily API key from cookies with env fallback
+    - `app/components/chat/BaseChat.tsx`: Added Tavily API key UI component in Model Settings
+
 - **2025-10-31**: Integrated Tavily AI Web Search
   - **AI can now search the web** for real-time information, current events, trends, and up-to-date content
   - **Automatic web search**: AI automatically uses web search when it needs current information
