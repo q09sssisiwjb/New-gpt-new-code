@@ -6,6 +6,7 @@ import { getModel } from '~/lib/.server/llm/model';
 import { MAX_TOKENS } from './constants';
 import { getSystemPrompt } from './prompts';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, MODEL_LIST, MODEL_REGEX, PROVIDER_REGEX } from '~/utils/constants';
+import { getTools } from './tools';
 
 interface ToolResult<Name extends string, Args, Result> {
   toolCallId: string;
@@ -40,7 +41,14 @@ function extractPropertiesFromMessage(message: Message): { model: string; provid
   return { model, provider, content: cleanedContent };
 }
 
-export function streamText(messages: Messages, env: Env, options?: StreamingOptions, apiKeys?: Record<string, string>, mode?: 'build' | 'chat') {
+export function streamText(
+  messages: Messages, 
+  env: Env, 
+  options?: StreamingOptions, 
+  apiKeys?: Record<string, string>, 
+  mode?: 'build' | 'chat',
+  enableWebSearch?: boolean
+) {
   let currentModel = DEFAULT_MODEL;
   let currentProvider = DEFAULT_PROVIDER;
 
@@ -64,11 +72,19 @@ export function streamText(messages: Messages, env: Env, options?: StreamingOpti
 
   const dynamicMaxTokens = modelDetails && modelDetails.maxTokenAllowed ? modelDetails.maxTokenAllowed : MAX_TOKENS;
 
+  // Get tools if web search is enabled
+  const tools = enableWebSearch !== false ? getTools({ 
+    enabled: enableWebSearch !== false,
+    tavilyApiKey: env.TAVILY_API_KEY 
+  }) : undefined;
+
   return _streamText({
     model: getModel(currentProvider, currentModel, env, apiKeys),
     system: getSystemPrompt(undefined, mode),
     maxTokens: dynamicMaxTokens,
     messages: convertToCoreMessages(processedMessages),
+    tools,
+    maxSteps: tools ? 5 : 1,
     ...options,
   });
 }
