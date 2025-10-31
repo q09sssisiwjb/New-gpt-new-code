@@ -15,8 +15,13 @@ export default defineConfig((config) => {
       port: 5000,
       strictPort: true,
       hmr: {
+        port: 5000,
         clientPort: 443,
         protocol: 'wss',
+      },
+      watch: {
+        usePolling: true,
+        interval: 1000,
       },
     },
     plugins: [
