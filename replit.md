@@ -30,6 +30,24 @@ functions/          - Cloudflare Functions
 ```
 
 ## Recent Changes
+- **2025-10-31**: Integrated Tavily AI Web Search
+  - **AI can now search the web** for real-time information, current events, trends, and up-to-date content
+  - **Automatic web search**: AI automatically uses web search when it needs current information
+  - **Use cases**: SEO insights, marketing strategies, news, real-time data, latest documentation
+  - **Tool integration**: Tavily search API integrated with Vercel AI SDK tool calling
+  - **Features**:
+    - Multi-step reasoning with up to 5 search iterations
+    - Structured search results with titles, URLs, content snippets, and relevance scores
+    - AI-generated summaries with source citations
+    - Graceful error handling and fallback messages
+    - Works in both Build Mode and Chat Mode
+  - **Files Created/Modified**:
+    - `app/lib/.server/llm/tools.ts`: New web search tool implementation
+    - `app/lib/.server/llm/stream-text.ts`: Integrated tools with AI streaming
+    - `app/routes/api.chat.ts`: Enabled web search in chat API
+    - `app/lib/.server/llm/prompts.ts`: Updated system prompts with web search instructions
+  - **API Key Required**: `TAVILY_API_KEY` (free tier: 1,000 searches/month)
+
 - **2025-10-30**: Implemented Chat Mode and Build Mode feature
   - **Build Mode** (Default): AI creates and updates code with full artifact execution
   - **Chat Mode**: Conversational mode for asking questions about your project without making code changes
@@ -126,6 +144,13 @@ functions/          - Cloudflare Functions
 - `OPEN_ROUTER_API_KEY` - https://openrouter.ai/keys (access to multiple models)
 - `XAI_API_KEY` - xAI Grok API
 - `HuggingFace_API_KEY` - HuggingFace API
+
+**Web Search** (enable AI to search the web):
+- `TAVILY_API_KEY` - Tavily AI Search API
+  - Get key: https://app.tavily.com/home
+  - Free tier: 1,000 searches/month
+  - **Best for**: Real-time information, news, SEO insights, marketing strategies, current events
+  - **Features**: AI can automatically search the web when it needs up-to-date information
 
 **For local models** (no API key needed):
 - `OLLAMA_API_BASE_URL` - If running Ollama locally (default: http://localhost:11434)
