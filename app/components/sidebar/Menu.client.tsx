@@ -123,7 +123,15 @@ export function Menu() {
       variants={menuVariants}
       className="flex selection-accent flex-col side-menu fixed top-0 w-[350px] h-full bg-bolt-elements-background-depth-2 border-r rounded-r-3xl border-bolt-elements-borderColor z-sidebar shadow-xl shadow-bolt-elements-sidebar-dropdownShadow text-sm"
     >
-      <div className="flex items-center h-[var(--header-height)]">{/* Placeholder */}</div>
+      <div className="flex items-center justify-end h-[var(--header-height)] px-4">
+        <button
+          onClick={() => setOpen(false)}
+          className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent hover:bg-bolt-elements-sidebar-buttonBackgroundHover text-bolt-elements-textPrimary transition-theme"
+          aria-label="Close menu"
+        >
+          <div className="i-ph:x text-xl" />
+        </button>
+      </div>
       <div className="flex-1 flex flex-col h-full w-full overflow-hidden">
         <div className="p-4 select-none">
           <a
