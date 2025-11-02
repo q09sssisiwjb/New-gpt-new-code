@@ -77,7 +77,7 @@ export const Preview = memo(() => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col" onMouseMove={handlePreviewInteraction}
+    <div className="w-full h-full flex flex-col" onMouseMove={handlePreviewInteraction}>
       {isPortDropdownOpen && (
         <div className="z-iframe-overlay w-full h-full absolute" onClick={() => setIsPortDropdownOpen(false)} />
       )}
