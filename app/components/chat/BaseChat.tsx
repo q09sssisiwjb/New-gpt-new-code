@@ -465,7 +465,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     />
                   </div>
                   <ClientOnly>
-                    {() => (
+                    {() =>
                       <SendButton
                         show={input.length > 0 || attachedFiles.length > 0 || isStreaming}
                         isStreaming={isStreaming}
@@ -478,10 +478,74 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           sendMessage?.(event);
                         }}
                       />
-                    )}
+                    }
                   </ClientOnly>
                   <div className="flex justify-between items-center text-sm p-4 pt-2">
                     <div className="flex gap-1 items-center">
+                      <ClientOnly>
+                        {() =>
+                          onFilesChange ? (
+                            <>
+                              <input
+                                type="file"
+                                id="file-upload-bottom"
+                                onChange={async (e) => {
+                                  const selectedFiles = Array.from(e.target.files || []);
+                                  const newFiles: any[] = [];
+                                  const MAX_FILE_SIZE = 10 * 1024 * 1024;
+                                  const ACCEPTED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+
+                                  for (const file of selectedFiles) {
+                                    if (file.size > MAX_FILE_SIZE) {
+                                      console.error(`File ${file.name} is too large`);
+                                      continue;
+                                    }
+
+                                    if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
+                                      console.error(`File type ${file.type} is not supported`);
+                                      continue;
+                                    }
+
+                                    try {
+                                      const base64Data = await new Promise<string>((resolve, reject) => {
+                                        const reader = new FileReader();
+                                        reader.onload = () => resolve(reader.result as string);
+                                        reader.onerror = reject;
+                                        reader.readAsDataURL(file);
+                                      });
+                                      newFiles.push({
+                                        name: file.name,
+                                        size: file.size,
+                                        type: file.type.startsWith('image/') ? 'image' : 'file',
+                                        data: base64Data,
+                                      });
+                                    } catch (error) {
+                                      console.error(`Failed to process file ${file.name}`);
+                                    }
+                                  }
+
+                                  if (newFiles.length > 0) {
+                                    onFilesChange([...attachedFiles, ...newFiles]);
+                                  }
+                                  e.target.value = '';
+                                }}
+                                accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml"
+                                multiple
+                                className="hidden"
+                                disabled={isStreaming}
+                              />
+                              <IconButton
+                                title="Upload files or images"
+                                disabled={isStreaming}
+                                onClick={() => document.getElementById('file-upload-bottom')?.click()}
+                                className="transition-all"
+                              >
+                                <div className="i-ph:paperclip text-xl text-black"></div>
+                              </IconButton>
+                            </>
+                          ) : null
+                        }
+                      </ClientOnly>
                       <IconButton
                         title="Enhance prompt"
                         disabled={input.length === 0 || enhancingPrompt}
