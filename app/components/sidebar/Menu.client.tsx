@@ -39,6 +39,8 @@ export function Menu() {
   const [list, setList] = useState<ChatHistoryItem[]>([]);
   const [open, setOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState<DialogContent>(null);
+  const lastMousePositionRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const manuallyClosedRef = useRef(false);
 
   const { filteredItems: filteredList, handleSearchChange } = useSearchFilter({
     items: list,
@@ -87,15 +89,30 @@ export function Menu() {
   useEffect(() => {
     const enterThreshold = 40;
     const exitThreshold = 40;
+    const movementThreshold = 5; // Minimum movement to trigger open
 
     function onMouseMove(event: MouseEvent) {
-      if (event.pageX < enterThreshold) {
+      const currentX = event.pageX;
+      const currentY = event.pageY;
+      const lastX = lastMousePositionRef.current.x;
+      const lastY = lastMousePositionRef.current.y;
+
+      // Calculate distance moved
+      const distanceMoved = Math.sqrt(Math.pow(currentX - lastX, 2) + Math.pow(currentY - lastY, 2));
+
+      // Only open if mouse is moving (not just positioned) and wasn't manually closed
+      if (currentX < enterThreshold && distanceMoved > movementThreshold && !manuallyClosedRef.current) {
         setOpen(true);
       }
 
+      // Close when moving away
       if (menuRef.current && event.clientX > menuRef.current.getBoundingClientRect().right + exitThreshold) {
         setOpen(false);
+        manuallyClosedRef.current = false;
       }
+
+      // Update last position
+      lastMousePositionRef.current = { x: currentX, y: currentY };
     }
 
     window.addEventListener('mousemove', onMouseMove);
@@ -125,7 +142,14 @@ export function Menu() {
     >
       <div className="flex items-center justify-end h-[var(--header-height)] px-4">
         <button
-          onClick={() => setOpen(false)}
+          onClick={() => {
+            setOpen(false);
+            manuallyClosedRef.current = true;
+            // Reset manual close flag after 2 seconds
+            setTimeout(() => {
+              manuallyClosedRef.current = false;
+            }, 2000);
+          }}
           className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent hover:bg-bolt-elements-sidebar-buttonBackgroundHover text-bolt-elements-textPrimary transition-theme"
           aria-label="Close menu"
         >
