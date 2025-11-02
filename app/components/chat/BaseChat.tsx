@@ -17,6 +17,8 @@ import Cookies from 'js-cookie';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { useStore } from '@nanostores/react';
 import { modeStore, setMode, type Mode } from '~/lib/stores/mode';
+import { FileUpload } from './FileUpload';
+import type { FileAttachment } from '~/utils/fileUtils';
 
 import styles from './BaseChat.module.scss';
 import type { ProviderInfo } from '~/utils/types';
@@ -87,6 +89,8 @@ interface BaseChatProps {
   enhancePrompt?: () => void;
   importChat?: (description: string, messages: Message[]) => Promise<void>;
   exportChat?: () => void;
+  attachedFiles?: FileAttachment[];
+  onFilesChange?: (files: FileAttachment[]) => void;
 }
 
 export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
@@ -112,6 +116,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       handleStop,
       importChat,
       exportChat,
+      attachedFiles = [],
+      onFilesChange,
     },
     ref,
   ) => {
@@ -314,6 +320,18 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     'relative shadow-xs border border-bolt-elements-borderColor backdrop-blur rounded-lg',
                   )}
                 >
+                  {onFilesChange && (
+                    <div className="px-4 pt-3">
+                      <FileUpload
+                        files={attachedFiles}
+                        onFilesChange={onFilesChange}
+                        disabled={isStreaming}
+                        onError={(error) => {
+                          console.error('File upload error:', error);
+                        }}
+                      />
+                    </div>
+                  )}
                   <textarea
                     ref={textareaRef}
                     className={
@@ -344,7 +362,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   <ClientOnly>
                     {() => (
                       <SendButton
-                        show={input.length > 0 || isStreaming}
+                        show={input.length > 0 || attachedFiles.length > 0 || isStreaming}
                         isStreaming={isStreaming}
                         onClick={(event) => {
                           if (isStreaming) {

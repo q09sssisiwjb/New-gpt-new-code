@@ -20,6 +20,7 @@ import { BaseChat } from './BaseChat';
 import Cookies from 'js-cookie';
 import type { ProviderInfo } from '~/utils/types';
 import { debounce } from '~/utils/debounce';
+import type { FileAttachment } from '~/utils/fileUtils';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -105,6 +106,7 @@ export const ChatImpl = memo(
     const [animationScope, animate] = useAnimate();
 
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
+    const [attachedFiles, setAttachedFiles] = useState<FileAttachment[]>([]);
 
     const { messages, isLoading, input, handleInputChange, setInput, stop, append } = useChat({
       api: '/api/chat',
@@ -186,7 +188,7 @@ export const ChatImpl = memo(
     const sendMessage = async (_event: React.UIEvent, messageInput?: string) => {
       const _input = messageInput || input;
 
-      if (_input.length === 0 || isLoading) {
+      if ((_input.length === 0 && attachedFiles.length === 0) || isLoading) {
         return;
       }
 
@@ -205,28 +207,59 @@ export const ChatImpl = memo(
 
       runAnimation();
 
-      if (fileModifications !== undefined) {
-        const diff = fileModificationsToHTML(fileModifications);
-
-        /**
-         * If we have file modifications we append a new user message manually since we have to prefix
-         * the user input with the file modifications and we don't want the new user input to appear
-         * in the prompt. Using `append` is almost the same as `handleSubmit` except that we have to
-         * manually reset the input and we'd have to manually pass in file attachments. However, those
-         * aren't relevant here.
-         */
-        append({ role: 'user', content: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${diff}\n\n${_input}` });
-
-        /**
-         * After sending a new message we reset all modifications since the model
-         * should now be aware of all the changes.
-         */
-        workbenchStore.resetAllFileModifications();
+      // Create message content with files if attached
+      let messageContent;
+      const modelAndProviderPrefix = `[Model: ${model}]\n\n[Provider: ${provider.name}]`;
+      
+      if (attachedFiles.length > 0) {
+        // Create multimodal content with text and images
+        const contentParts = [];
+        
+        // Add text content
+        if (fileModifications !== undefined) {
+          const diff = fileModificationsToHTML(fileModifications);
+          contentParts.push({
+            type: 'text',
+            text: `${modelAndProviderPrefix}\n\n${diff}\n\n${_input}`
+          });
+        } else {
+          contentParts.push({
+            type: 'text',
+            text: `${modelAndProviderPrefix}\n\n${_input}`
+          });
+        }
+        
+        // Add image content
+        attachedFiles.forEach(file => {
+          contentParts.push({
+            type: 'image',
+            image: file.data
+          });
+        });
+        
+        messageContent = contentParts;
       } else {
-        append({ role: 'user', content: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${_input}` });
+        // Plain text message
+        if (fileModifications !== undefined) {
+          const diff = fileModificationsToHTML(fileModifications);
+          messageContent = `${modelAndProviderPrefix}\n\n${diff}\n\n${_input}`;
+        } else {
+          messageContent = `${modelAndProviderPrefix}\n\n${_input}`;
+        }
+      }
+
+      append({ role: 'user', content: messageContent });
+
+      /**
+       * After sending a new message we reset all modifications since the model
+       * should now be aware of all the changes.
+       */
+      if (fileModifications !== undefined) {
+        workbenchStore.resetAllFileModifications();
       }
 
       setInput('');
+      setAttachedFiles([]);
       Cookies.remove(PROMPT_COOKIE_KEY);
 
       resetEnhancer();
@@ -299,6 +332,8 @@ export const ChatImpl = memo(
         description={description}
         importChat={importChat}
         exportChat={exportChat}
+        attachedFiles={attachedFiles}
+        onFilesChange={setAttachedFiles}
         messages={messages.map((message, i) => {
           if (message.role === 'user') {
             return message;

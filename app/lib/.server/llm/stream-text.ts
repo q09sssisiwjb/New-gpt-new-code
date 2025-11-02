@@ -15,9 +15,21 @@ interface ToolResult<Name extends string, Args, Result> {
   result: Result;
 }
 
+export interface ImageContent {
+  type: 'image';
+  image: string; // base64 data URL
+}
+
+export interface TextContent {
+  type: 'text';
+  text: string;
+}
+
+export type MessageContent = string | Array<TextContent | ImageContent>;
+
 interface Message {
   role: 'user' | 'assistant';
-  content: string;
+  content: MessageContent;
   toolInvocations?: ToolResult<string, unknown, unknown>[];
   model?: string;
 }
@@ -26,17 +38,42 @@ export type Messages = Message[];
 
 export type StreamingOptions = Omit<Parameters<typeof _streamText>[0], 'model'>;
 
-function extractPropertiesFromMessage(message: Message): { model: string; provider: string; content: string } {
+function extractPropertiesFromMessage(message: Message): { model: string; provider: string; content: MessageContent } {
+  let textContent = '';
+  
+  // Extract text content from message
+  if (typeof message.content === 'string') {
+    textContent = message.content;
+  } else if (Array.isArray(message.content)) {
+    const textPart = message.content.find((part) => part.type === 'text') as TextContent | undefined;
+    textContent = textPart?.text || '';
+  }
+
   // Extract model
-  const modelMatch = message.content.match(MODEL_REGEX);
+  const modelMatch = textContent.match(MODEL_REGEX);
   const model = modelMatch ? modelMatch[1] : DEFAULT_MODEL;
 
   // Extract provider
-  const providerMatch = message.content.match(PROVIDER_REGEX);
+  const providerMatch = textContent.match(PROVIDER_REGEX);
   const provider = providerMatch ? providerMatch[1] : DEFAULT_PROVIDER;
 
   // Remove model and provider lines from content
-  const cleanedContent = message.content.replace(MODEL_REGEX, '').replace(PROVIDER_REGEX, '').trim();
+  const cleanedTextContent = textContent.replace(MODEL_REGEX, '').replace(PROVIDER_REGEX, '').trim();
+
+  // Reconstruct content with cleaned text
+  let cleanedContent: MessageContent;
+  if (typeof message.content === 'string') {
+    cleanedContent = cleanedTextContent;
+  } else if (Array.isArray(message.content)) {
+    cleanedContent = message.content.map((part) => {
+      if (part.type === 'text') {
+        return { type: 'text', text: cleanedTextContent };
+      }
+      return part;
+    });
+  } else {
+    cleanedContent = cleanedTextContent;
+  }
 
   return { model, provider, content: cleanedContent };
 }
