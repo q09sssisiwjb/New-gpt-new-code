@@ -89,6 +89,11 @@ export function Menu() {
     const exitThreshold = 40;
 
     function onMouseMove(event: MouseEvent) {
+      // Don't auto-open if clicking or interacting with elements
+      if (event.buttons !== 0) {
+        return;
+      }
+
       if (event.pageX < enterThreshold) {
         setOpen(true);
       }

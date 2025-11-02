@@ -71,8 +71,13 @@ export const Preview = memo(() => {
     }
   };
 
+  const handlePreviewInteraction = (e: React.MouseEvent) => {
+    // Stop propagation to prevent sidebar from detecting mouse movement
+    e.stopPropagation();
+  };
+
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-full h-full flex flex-col" onMouseMove={handlePreviewInteraction}
       {isPortDropdownOpen && (
         <div className="z-iframe-overlay w-full h-full absolute" onClick={() => setIsPortDropdownOpen(false)} />
       )}
