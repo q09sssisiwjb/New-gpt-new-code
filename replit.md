@@ -30,6 +30,28 @@ functions/          - Cloudflare Functions
 ```
 
 ## Recent Changes
+- **2025-11-02**: Added Image Upload Support
+  - **Users can now upload and send images to vision-enabled AI models**
+  - **Features**:
+    - Upload images directly in the chat interface
+    - Support for JPEG, PNG, GIF, WebP, and SVG formats
+    - Image preview before sending
+    - Images converted to base64 and sent as multimodal content
+    - Works with vision-capable models (GPT-4.1, Claude Sonnet 4.5, Gemini 2.0, etc.)
+    - Multiple images can be sent in a single message
+    - Images automatically included with text prompts
+  - **UI Components**:
+    - "Attach files/images" button with paperclip icon
+    - Image preview cards with remove functionality
+    - File size display for each uploaded image
+    - Maximum file size: 10MB per image
+  - **Files Created/Modified**:
+    - `app/utils/fileUtils.ts`: File handling utilities and base64 conversion
+    - `app/components/chat/FileUpload.tsx`: New file upload UI component
+    - `app/components/chat/Chat.client.tsx`: File state management and multimodal message creation
+    - `app/components/chat/BaseChat.tsx`: Integrated FileUpload component
+    - `app/lib/.server/llm/stream-text.ts`: Updated message types to support multimodal content (text + images)
+
 - **2025-10-31**: Added Tavily API Key Frontend UI
   - **Users can now enter their Tavily API key directly in the UI** (stored securely in browser cookies)
   - **Frontend API key management**: Added Tavily to the Model Settings section with:
