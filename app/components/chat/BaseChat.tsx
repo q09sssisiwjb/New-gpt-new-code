@@ -540,7 +540,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                                 onClick={() => document.getElementById('file-upload-bottom')?.click()}
                                 className="transition-all"
                               >
-                                <div className="i-ph:paperclip text-xl text-black"></div>
+                                <div className="i-ph:paperclip text-xl"></div>
                               </IconButton>
                             </>
                           ) : null
