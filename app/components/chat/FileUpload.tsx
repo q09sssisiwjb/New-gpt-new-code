@@ -105,11 +105,10 @@ export function FileUpload({ files, onFilesChange, onError, disabled = false }: 
       <button
         onClick={() => fileInputRef.current?.click()}
         disabled={disabled}
-        className="flex items-center gap-2 px-3 py-2 text-sm text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-bolt-elements-borderColor rounded-lg"
+        className="p-2 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         title="Upload files or images"
       >
-        <span>📎</span>
-        <span>Attach files/images</span>
+        <div className="i-ph:paperclip text-xl"></div>
       </button>
     </div>
   );

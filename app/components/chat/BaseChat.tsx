@@ -320,49 +320,150 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     'relative shadow-xs border border-bolt-elements-borderColor backdrop-blur rounded-lg',
                   )}
                 >
-                  <ClientOnly>
-                    {() =>
-                      onFilesChange ? (
+                  {attachedFiles.length > 0 && (
+                    <ClientOnly>
+                      {() => (
                         <div className="px-4 pt-3">
-                          <FileUpload
-                            files={attachedFiles}
-                            onFilesChange={onFilesChange}
-                            disabled={isStreaming}
-                            onError={(error) => {
-                              console.error('File upload error:', error);
-                            }}
-                          />
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {attachedFiles.map((file, index) => (
+                              <div
+                                key={index}
+                                className="relative group flex items-center gap-2 px-3 py-2 bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor rounded-lg"
+                              >
+                                <div className="flex items-center gap-2">
+                                  {file.type === 'image' ? (
+                                    <div className="w-10 h-10 rounded overflow-hidden bg-bolt-elements-background-depth-3">
+                                      <img
+                                        src={file.data}
+                                        alt={file.name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div className="w-10 h-10 rounded bg-bolt-elements-background-depth-3 flex items-center justify-center text-bolt-elements-textSecondary">
+                                      📄
+                                    </div>
+                                  )}
+                                  <div className="flex flex-col">
+                                    <span className="text-xs text-bolt-elements-textPrimary truncate max-w-[150px]">
+                                      {file.name}
+                                    </span>
+                                    <span className="text-xs text-bolt-elements-textSecondary">
+                                      {((size: number) => {
+                                        if (size < 1024) return `${size} B`;
+                                        if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+                                        return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+                                      })(file.size)}
+                                    </span>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => onFilesChange?.(attachedFiles.filter((_, i) => i !== index))}
+                                  className="ml-2 p-1 rounded hover:bg-bolt-elements-background-depth-3 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors"
+                                  title="Remove file"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      ) : null
-                    }
-                  </ClientOnly>
-                  <textarea
-                    ref={textareaRef}
-                    className={
-                      'w-full pl-4 pt-4 pr-16 focus:outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm'
-                    }
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter') {
-                        if (event.shiftKey) {
-                          return;
-                        }
+                      )}
+                    </ClientOnly>
+                  )}
+                  <div className="flex items-start">
+                    <ClientOnly>
+                      {() =>
+                        onFilesChange ? (
+                          <div className="pl-2 pt-4">
+                            <input
+                              type="file"
+                              id="file-upload-input"
+                              onChange={async (e) => {
+                                const selectedFiles = Array.from(e.target.files || []);
+                                const newFiles: any[] = [];
+                                const MAX_FILE_SIZE = 10 * 1024 * 1024;
+                                const ACCEPTED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
 
-                        event.preventDefault();
+                                for (const file of selectedFiles) {
+                                  if (file.size > MAX_FILE_SIZE) {
+                                    console.error(`File ${file.name} is too large`);
+                                    continue;
+                                  }
 
-                        sendMessage?.(event);
+                                  if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
+                                    console.error(`File type ${file.type} is not supported`);
+                                    continue;
+                                  }
+
+                                  try {
+                                    const base64Data = await new Promise<string>((resolve, reject) => {
+                                      const reader = new FileReader();
+                                      reader.onload = () => resolve(reader.result as string);
+                                      reader.onerror = reject;
+                                      reader.readAsDataURL(file);
+                                    });
+                                    newFiles.push({
+                                      name: file.name,
+                                      size: file.size,
+                                      type: file.type.startsWith('image/') ? 'image' : 'file',
+                                      data: base64Data,
+                                    });
+                                  } catch (error) {
+                                    console.error(`Failed to process file ${file.name}`);
+                                  }
+                                }
+
+                                if (newFiles.length > 0) {
+                                  onFilesChange([...attachedFiles, ...newFiles]);
+                                }
+                                e.target.value = '';
+                              }}
+                              accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml"
+                              multiple
+                              className="hidden"
+                              disabled={isStreaming}
+                            />
+                            <button
+                              onClick={() => document.getElementById('file-upload-input')?.click()}
+                              disabled={isStreaming}
+                              className="p-2 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                              title="Upload files or images"
+                            >
+                              <div className="i-ph:paperclip text-xl"></div>
+                            </button>
+                          </div>
+                        ) : null
                       }
-                    }}
-                    value={input}
-                    onChange={(event) => {
-                      handleInputChange?.(event);
-                    }}
-                    style={{
-                      minHeight: TEXTAREA_MIN_HEIGHT,
-                      maxHeight: TEXTAREA_MAX_HEIGHT,
-                    }}
-                    placeholder="How can Bolt help you today?"
-                    translate="no"
-                  />
+                    </ClientOnly>
+                    <textarea
+                      ref={textareaRef}
+                      className={
+                        'w-full pl-2 pt-4 pr-16 focus:outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm'
+                      }
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                          if (event.shiftKey) {
+                            return;
+                          }
+
+                          event.preventDefault();
+
+                          sendMessage?.(event);
+                        }
+                      }}
+                      value={input}
+                      onChange={(event) => {
+                        handleInputChange?.(event);
+                      }}
+                      style={{
+                        minHeight: TEXTAREA_MIN_HEIGHT,
+                        maxHeight: TEXTAREA_MAX_HEIGHT,
+                      }}
+                      placeholder="How can Bolt help you today?"
+                      translate="no"
+                    />
+                  </div>
                   <ClientOnly>
                     {() => (
                       <SendButton
