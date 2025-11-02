@@ -67,8 +67,8 @@ export function FileUpload({ files, onFilesChange, onError, disabled = false }: 
                     />
                   </div>
                 ) : (
-                  <div className="w-10 h-10 rounded bg-bolt-elements-background-depth-3 flex items-center justify-center">
-                    <div className="i-ph:file-text text-xl text-bolt-elements-textSecondary" />
+                  <div className="w-10 h-10 rounded bg-bolt-elements-background-depth-3 flex items-center justify-center text-bolt-elements-textSecondary">
+                    📄
                   </div>
                 )}
                 <div className="flex flex-col">
@@ -85,7 +85,7 @@ export function FileUpload({ files, onFilesChange, onError, disabled = false }: 
                 className="ml-2 p-1 rounded hover:bg-bolt-elements-background-depth-3 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors"
                 title="Remove file"
               >
-                <div className="i-ph:x text-sm" />
+                ✕
               </button>
             </div>
           ))}
@@ -105,11 +105,11 @@ export function FileUpload({ files, onFilesChange, onError, disabled = false }: 
       <button
         onClick={() => fileInputRef.current?.click()}
         disabled={disabled}
-        className="flex items-center gap-2 px-3 py-2 text-sm text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="flex items-center gap-2 px-3 py-2 text-sm text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-bolt-elements-borderColor rounded-lg"
         title="Upload files or images"
       >
-        <div className="i-ph:paperclip text-xl" />
-        <span>Attach files</span>
+        <span>📎</span>
+        <span>Attach files/images</span>
       </button>
     </div>
   );

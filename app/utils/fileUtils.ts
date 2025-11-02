@@ -16,11 +16,9 @@ export const ACCEPTED_IMAGE_TYPES = [
   'image/svg+xml'
 ];
 
-export const ACCEPTED_DOCUMENT_TYPES = [
-  'application/pdf',
-  'text/plain',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+export const ACCEPTED_DOCUMENT_TYPES: string[] = [
+  // Document support may require additional backend configuration
+  // depending on the AI provider's capabilities
 ];
 
 export const ACCEPTED_FILE_TYPES = [

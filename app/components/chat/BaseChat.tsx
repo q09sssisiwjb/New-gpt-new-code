@@ -320,18 +320,22 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     'relative shadow-xs border border-bolt-elements-borderColor backdrop-blur rounded-lg',
                   )}
                 >
-                  {onFilesChange && (
-                    <div className="px-4 pt-3">
-                      <FileUpload
-                        files={attachedFiles}
-                        onFilesChange={onFilesChange}
-                        disabled={isStreaming}
-                        onError={(error) => {
-                          console.error('File upload error:', error);
-                        }}
-                      />
-                    </div>
-                  )}
+                  <ClientOnly>
+                    {() =>
+                      onFilesChange ? (
+                        <div className="px-4 pt-3">
+                          <FileUpload
+                            files={attachedFiles}
+                            onFilesChange={onFilesChange}
+                            disabled={isStreaming}
+                            onError={(error) => {
+                              console.error('File upload error:', error);
+                            }}
+                          />
+                        </div>
+                      ) : null
+                    }
+                  </ClientOnly>
                   <textarea
                     ref={textareaRef}
                     className={

@@ -229,12 +229,14 @@ export const ChatImpl = memo(
           });
         }
         
-        // Add image content
+        // Add image content (only process image files for vision APIs)
         attachedFiles.forEach(file => {
-          contentParts.push({
-            type: 'image',
-            image: file.data
-          });
+          if (file.type === 'image') {
+            contentParts.push({
+              type: 'image',
+              image: file.data
+            });
+          }
         });
         
         messageContent = contentParts;
@@ -248,7 +250,7 @@ export const ChatImpl = memo(
         }
       }
 
-      append({ role: 'user', content: messageContent });
+      append({ role: 'user', content: messageContent as any });
 
       /**
        * After sending a new message we reset all modifications since the model
